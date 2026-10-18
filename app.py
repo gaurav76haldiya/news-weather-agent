@@ -21,34 +21,6 @@ st.set_page_config(
 )
 
 
-# Add these styles inside your existing <style> block
-
-        /* Fix chat input text visibility */
-        [data-testid="stChatInput"] textarea {
-            color: #111827 !important;
-            background-color: #ffffff !important;
-            caret-color: #111827 !important;
-            -webkit-text-fill-color: #111827 !important;
-        }
-
-        [data-testid="stChatInput"] textarea::placeholder {
-            color: #6b7280 !important;
-            opacity: 1 !important;
-        }
-
-        [data-testid="stChatInput"] {
-            background-color: #ffffff !important;
-            border: 1px solid #64748b !important;
-            border-radius: 12px !important;
-        }
-
-        [data-testid="stChatInput"] textarea:focus {
-            color: #111827 !important;
-            -webkit-text-fill-color: #111827 !important;
-            background-color: #ffffff !important;
-        }
-
-
 # =========================================================
 # 2. CUSTOM CSS
 # =========================================================
@@ -56,9 +28,81 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Your existing CSS stays here */
+    /* Main application */
+    .stApp {
+        background-color: #0b1120;
+        color: #f8fafc;
+    }
 
-    /* Fix chat input text visibility */
+    [data-testid="stSidebar"] {
+        background-color: #111827;
+    }
+
+    [data-testid="stSidebar"] * {
+        color: #e5e7eb;
+    }
+
+    /* Hero section */
+    .hero {
+        padding: 28px;
+        margin-bottom: 24px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #172554, #164e63);
+        border: 1px solid #334155;
+    }
+
+    .hero h1 {
+        color: #ffffff;
+        margin-bottom: 10px;
+    }
+
+    .hero p {
+        color: #dbeafe;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    /* Feature cards */
+    .feature-card {
+        background-color: #111827;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 20px;
+        min-height: 145px;
+        margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+        color: #f8fafc;
+        font-size: 19px;
+    }
+
+    .feature-card p {
+        color: #cbd5e1;
+        font-size: 14px;
+    }
+
+    .small-muted {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    /* Chat messages */
+    [data-testid="stChatMessage"] {
+        background-color: #111827;
+        border: 1px solid #263449;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+
+    /* FIX: Chat input background and typed text */
+    [data-testid="stChatInput"] {
+        background-color: #ffffff !important;
+        border: 1px solid #64748b !important;
+        border-radius: 12px !important;
+    }
+
     [data-testid="stChatInput"] textarea {
         color: #111827 !important;
         background-color: #ffffff !important;
@@ -69,20 +113,24 @@ st.markdown(
     [data-testid="stChatInput"] textarea::placeholder {
         color: #6b7280 !important;
         opacity: 1 !important;
-    }
-
-    [data-testid="stChatInput"] {
-        background-color: #ffffff !important;
-        border: 1px solid #64748b !important;
-        border-radius: 12px !important;
+        -webkit-text-fill-color: #6b7280 !important;
     }
 
     [data-testid="stChatInput"] textarea:focus {
         color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
         background-color: #ffffff !important;
+        -webkit-text-fill-color: #111827 !important;
     }
 
+    /* Buttons */
+    .stButton button {
+        border-radius: 10px;
+    }
+
+    /* General text */
+    h1, h2, h3, h4, p, label {
+        color: #f8fafc;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -94,7 +142,7 @@ st.markdown(
 # =========================================================
 
 def get_secret(name: str, default: str = "") -> str:
-    """Read a key from Streamlit Secrets, with env fallback."""
+    """Read Streamlit Secrets, falling back to environment variables."""
     try:
         value = st.secrets.get(name, default)
     except Exception:
@@ -122,10 +170,13 @@ def get_latest_news(topic: str) -> str:
     """
     Fetch recent English-language news articles for a topic.
     Returns headlines, publisher, publication time, summary and URL.
-    Use this for requests about latest or recent news.
+    Use this tool for requests about recent news.
     """
     if not topic.strip():
         return "Please provide a topic for the news search."
+
+    if not NEWS_API_KEY:
+        return "News API key is missing. Configure NEWS_API_KEY."
 
     url = "https://newsapi.org/v2/everything"
 
@@ -179,11 +230,17 @@ def get_latest_news(topic: str) -> str:
         return "\n\n".join(output)
 
     except requests.HTTPError as exc:
-        status = exc.response.status_code if exc.response is not None else None
+        status = (
+            exc.response.status_code
+            if exc.response is not None
+            else None
+        )
+
         if status == 401:
             return "News API authentication failed. Check NEWS_API_KEY."
         if status == 429:
             return "News API rate limit reached. Please try again later."
+
         return f"News API HTTP error: {exc}"
 
     except requests.RequestException as exc:
@@ -198,11 +255,13 @@ def get_latest_news(topic: str) -> str:
 def get_weather(city: str) -> str:
     """
     Fetch current weather for a city.
-    Returns weather description, temperature in Celsius,
-    feels-like temperature, humidity and wind speed.
+    Returns conditions, temperature, humidity and wind speed.
     """
     if not city.strip():
         return "Please provide a city name."
+
+    if not OPENWEATHER_API_KEY:
+        return "Weather API key is missing. Configure OPENWEATHER_API_KEY."
 
     url = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -238,10 +297,17 @@ def get_weather(city: str) -> str:
         )
 
     except requests.HTTPError as exc:
-        status = exc.response.status_code if exc.response is not None else None
+        status = (
+            exc.response.status_code
+            if exc.response is not None
+            else None
+        )
 
         if status == 401:
-            return "Weather API authentication failed. Check OPENWEATHER_API_KEY."
+            return (
+                "Weather API authentication failed. "
+                "Check OPENWEATHER_API_KEY."
+            )
         if status == 404:
             return f"City {city!r} was not found. Check the spelling."
         if status == 429:
@@ -249,7 +315,12 @@ def get_weather(city: str) -> str:
 
         return f"Weather API HTTP error: {exc}"
 
-    except (requests.RequestException, KeyError, IndexError, ValueError) as exc:
+    except (
+        requests.RequestException,
+        KeyError,
+        IndexError,
+        ValueError,
+    ) as exc:
         return f"Could not fetch weather data: {exc}"
 
 
@@ -259,7 +330,7 @@ def get_weather(city: str) -> str:
 
 @st.cache_resource(show_spinner=False)
 def build_agent(api_key: str, model_name: str):
-    """Create and cache the model and agent for this app process."""
+    """Create and cache the Gemini agent."""
 
     llm = ChatGoogleGenerativeAI(
         model=model_name,
@@ -281,14 +352,14 @@ Available tools:
 - get_weather(city): fetch current weather conditions.
 
 Instructions:
-1. Call the news tool when current or recent news is requested.
-2. Call the weather tool when current weather is requested.
+1. Call the news tool for current or recent news.
+2. Call the weather tool for current weather.
 3. If both are requested, use both tools.
 4. Never invent article titles, sources, dates, URLs or weather readings.
-5. Clearly explain when the tools return no data or an error.
+5. Explain clearly when a tool returns no data or an error.
 6. Present news as readable bullet points and include available links.
 7. Present weather in a concise, easy-to-read format.
-8. Ask a short clarification when a required topic or city is missing.
+8. Ask a short clarification when the topic or city is missing.
 9. Do not claim to have searched live data unless the relevant tool ran.
 """,
     )
@@ -337,11 +408,12 @@ with st.sidebar:
         st.session_state.pending_prompt = ""
         st.rerun()
 
-    st.markdown("---")
+    st.divider()
+
     st.markdown(
         '<p class="small-muted">'
-        'Powered by LangChain, Gemini, NewsAPI and OpenWeatherMap.'
-        '</p>',
+        "Powered by LangChain, Gemini, NewsAPI and OpenWeatherMap."
+        "</p>",
         unsafe_allow_html=True,
     )
 
@@ -370,7 +442,9 @@ with feature1:
         """
         <div class="feature-card">
             <h3>📰 Latest News</h3>
-            <p>Search recent articles by topic and open the original source.</p>
+            <p>
+                Search recent articles by topic and open the original source.
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -381,7 +455,9 @@ with feature2:
         """
         <div class="feature-card">
             <h3>🌤️ Live Weather</h3>
-            <p>Get current temperature, conditions, humidity and wind speed.</p>
+            <p>
+                Get current temperature, conditions, humidity and wind speed.
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -392,7 +468,9 @@ with feature3:
         """
         <div class="feature-card">
             <h3>🤖 AI Agent</h3>
-            <p>Ask naturally. The agent decides which custom tools to use.</p>
+            <p>
+                Ask naturally. The agent decides which custom tools to use.
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -415,17 +493,17 @@ if not st.session_state.messages:
     with st.chat_message("assistant", avatar="🌍"):
         st.markdown(
             """
-            Hello! 👋 I'm your News & Weather AI agent.
+Hello! 👋 I'm your News & Weather AI agent.
 
-            You can ask me questions like:
+You can ask me questions like:
 
-            - 📰 What are the latest AI developments?
-            - 🌤️ What's the weather in Mumbai?
-            - 🌍 Give me the latest technology news and weather in Delhi.
-            """
+- 📰 What are the latest AI developments?
+- 🌤️ What's the weather in Mumbai?
+- 🌍 Give me the latest technology news and weather in Delhi.
+"""
         )
 
-# Render the previous conversation.
+# Render previous conversation.
 for message in st.session_state.messages:
     with st.chat_message(
         message["role"],
@@ -448,7 +526,7 @@ st.session_state.pending_prompt = ""
 user_prompt = typed_prompt or pending_prompt
 
 if user_prompt:
-    # Display and store the user message.
+    # Store and display the user's message.
     st.session_state.messages.append(
         {"role": "user", "content": user_prompt}
     )
@@ -456,7 +534,7 @@ if user_prompt:
     with st.chat_message("user", avatar="🧑"):
         st.markdown(user_prompt)
 
-    # Check configuration before building the agent.
+    # Check required configuration.
     missing_keys = []
 
     if not GOOGLE_API_KEY:
@@ -491,7 +569,7 @@ if user_prompt:
                         GEMINI_MODEL,
                     )
 
-                    # Include conversation history for follow-up questions.
+                    # Pass conversation history to the agent.
                     conversation = [
                         {
                             "role": msg["role"],
@@ -509,17 +587,29 @@ if user_prompt:
 
                     if isinstance(content, str):
                         answer = content
+
+                    elif isinstance(content, list):
+                        # Handle Gemini text content blocks.
+                        text_parts = []
+
+                        for block in content:
+                            if isinstance(block, dict):
+                                block_text = block.get("text")
+                                if block_text:
+                                    text_parts.append(str(block_text))
+                            elif isinstance(block, str):
+                                text_parts.append(block)
+
+                        answer = "\n\n".join(text_parts)
+
                     else:
-                        # Gemini may return content blocks.
-                        answer = "\n\n".join(
-                            str(block.get("text", ""))
-                            for block in content
-                            if isinstance(block, dict)
-                            and block.get("text")
-                        )
+                        answer = str(content)
 
                     if not answer.strip():
-                        answer = "The agent returned an empty response. Please try again."
+                        answer = (
+                            "The agent returned an empty response. "
+                            "Please try again."
+                        )
 
                 st.markdown(answer)
 
