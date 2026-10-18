@@ -56,75 +56,33 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-        .stApp {
-            background: linear-gradient(
-                135deg, #0b1220 0%, #111827 55%, #101827 100%
-            );
-            color: #f8fafc;
-        }
+    /* Your existing CSS stays here */
 
-        [data-testid="stHeader"] {
-            background: transparent;
-        }
+    /* Fix chat input text visibility */
+    [data-testid="stChatInput"] textarea {
+        color: #111827 !important;
+        background-color: #ffffff !important;
+        caret-color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
 
-        [data-testid="stSidebar"] {
-            background: #0b1120;
-            border-right: 1px solid #253247;
-        }
+    [data-testid="stChatInput"] textarea::placeholder {
+        color: #6b7280 !important;
+        opacity: 1 !important;
+    }
 
-        .hero {
-            padding: 28px 30px;
-            border-radius: 22px;
-            background: linear-gradient(120deg, #172554, #123047);
-            border: 1px solid #294567;
-            margin-bottom: 22px;
-        }
+    [data-testid="stChatInput"] {
+        background-color: #ffffff !important;
+        border: 1px solid #64748b !important;
+        border-radius: 12px !important;
+    }
 
-        .hero h1 {
-            color: #f8fafc;
-            font-size: 34px;
-            margin-bottom: 8px;
-        }
+    [data-testid="stChatInput"] textarea:focus {
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        background-color: #ffffff !important;
+    }
 
-        .hero p {
-            color: #cbd5e1;
-            font-size: 16px;
-        }
-
-        .feature-card {
-            background: #151f31;
-            border: 1px solid #2b3a50;
-            border-radius: 15px;
-            padding: 18px;
-            min-height: 130px;
-        }
-
-        .feature-card h3 {
-            margin-top: 0;
-            color: #f8fafc;
-            font-size: 18px;
-        }
-
-        .feature-card p {
-            color: #b9c6d8;
-            font-size: 14px;
-        }
-
-        .stChatMessage {
-            border: 1px solid #253247;
-            border-radius: 14px;
-            padding: 14px;
-            background: rgba(21, 31, 49, 0.8);
-        }
-
-        [data-testid="stChatInput"] {
-            border-color: #40516b;
-        }
-
-        .small-muted {
-            color: #94a3b8;
-            font-size: 13px;
-        }
     </style>
     """,
     unsafe_allow_html=True,
