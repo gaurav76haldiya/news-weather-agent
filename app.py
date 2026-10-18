@@ -21,6 +21,34 @@ st.set_page_config(
 )
 
 
+# Add these styles inside your existing <style> block
+
+        /* Fix chat input text visibility */
+        [data-testid="stChatInput"] textarea {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+            caret-color: #111827 !important;
+            -webkit-text-fill-color: #111827 !important;
+        }
+
+        [data-testid="stChatInput"] textarea::placeholder {
+            color: #6b7280 !important;
+            opacity: 1 !important;
+        }
+
+        [data-testid="stChatInput"] {
+            background-color: #ffffff !important;
+            border: 1px solid #64748b !important;
+            border-radius: 12px !important;
+        }
+
+        [data-testid="stChatInput"] textarea:focus {
+            color: #111827 !important;
+            -webkit-text-fill-color: #111827 !important;
+            background-color: #ffffff !important;
+        }
+
+
 # =========================================================
 # 2. CUSTOM CSS
 # =========================================================
